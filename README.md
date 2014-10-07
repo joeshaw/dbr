@@ -9,6 +9,7 @@ package main
 
 import (
 	"database/sql"
+  "fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gocraft/dbr"
 )
@@ -36,14 +37,14 @@ func main() {
 	err := dbrSess.Select("id, title").From("suggestions").Where("id = ?", 13).LoadStruct(&suggestion)
 
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 	} else {
-		println("Title:", suggestion.Title)
+		fmt.Println("Title:", suggestion.Title)
 	}
 
 	// JSON-ready, with dbr.Null* types serialized like you want
 	recordJson, _ := json.Marshal(&suggestion)
-	println(string(recordJson))
+	fmt.Println(string(recordJson))
 }
 ```
 

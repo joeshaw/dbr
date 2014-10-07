@@ -1,21 +1,6 @@
 # gocraft/dbr (database records) [![GoDoc](https://godoc.org/github.com/gocraft/web?status.png)](https://godoc.org/github.com/gocraft/dbr)
 
-gocraft/db is a data access library for Go with a focus on simplicity, performance, and ease of use.
-
-## Installation
-From your GOPATH:
-
-```bash
-go get github.com/gocraft/dbr
-```
-
-You'll also want a driver for database/sql. Currently only MySQL has been tested (specifically [github.com/go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)). Postgres (and others) probably won't work yet, but I would like to support it. PRs welcome!
-
-You can get the MySQL driver with:
-
-```bash
-go get github.com/go-sql-driver/mysql
-```
+gocraft/dbr provides additions to Go's database/sql for super fast performance and convenience.
 
 ## Getting Started
 
@@ -63,11 +48,98 @@ func main() {
 ```
 
 ## Feature highlights
-* **Simple reading and wrting** -  Structs, primitives, and slices thereof are supported. Results are mapped directly into your data structures without extra effort.
-* **Composable query building** - Allow you to easily create queries in a dynamic and fluent manner.
-* **Session-aware logging** - A pluggable logging interface is available which supports events, errors, and timers.
-* **Custom SQL interpolation** - Ability to support more advanced constructs like IN clauses, and avoid throwaway prepared statements.
-* **JSON Friendly** - Null values encode like you want, hiding their implementation details
+
+### Automatically map results to structs
+Querying is the heart of gocraft/dbr. Automatically map results to structs:
+```go
+var posts []*struct {
+	Id int64
+  Title string
+  Body dbr.NullString
+}
+err := sess.Select("id, title, body").From("posts").Where("id = ?", id).LoadStruct(&post)
+```
+
+Additionally, easily query a single value or a slice of values:
+```go
+id, err := sess.SelectBySql("SELECT id FROM posts WHERE title = ? ORDER BY ID DESC LIMIT 1", title).ReturnInt64()
+ids, err := sess.SelectBySql("SELECT id FROM posts WHERE title = ?", title).ReturnInt64s()
+```
+
+See below for many more examples.
+
+### Use a Sweet Query Builder or use Plain SQL
+gocraft/dbr supports both.
+
+Sweet Query Builder:
+```go
+builder := sess.Select("title", "body").
+	From("posts").
+	Where("created_at > ?", someTime).
+	OrderBy("id ASC").
+	Limit(10)
+
+var posts []*Post
+n, err := builder.LoadStructs(&posts)
+```
+
+Plain SQL:
+```go
+n, err := sess.SelectBySql("SELECT title, body FROM posts WHERE created_at > ? ORDER BY id ASC LIMIT 10", someTime).LoadStructs(&post)
+```
+
+### IN queries that aren't horrible
+Traditionally database/sql uses prepared statements, which means each argument in an IN clause needs its own question mark. gocraft/dbr, on the other hand, handles interpolation itself so that you can easily use a single question mark paired with a dynamically sized slice.
+
+```go
+// Traditional database/sql way:
+ids := []int64{1,2,3,4,5}
+questionMarks := []string
+for _, _ := range ids {
+  questionMarks = append(questionMarks, "?")
+}
+n, err := db.Query(fmt.Sprintf("SELECT * FROM posts WHERE id IN (%s)", strings.Join(questionMarks, ","), ids) // lolwut
+
+// gocraft/dbr way:
+ids := []int64{1,2,3,4,5}
+n, err := sess.SelectBySql("SELECT * FROM posts WHERE id IN ?", ids) // yay
+```
+
+### Amazing instrumentation
+Writing instrumented code is a first-class concern for gocraft/dbr. We instrument each query to emit to a gocraft/health-compatible EventReceiver interface. NOTE: we have not released gocraft/health yet.
+
+This allows you to hook up query times to 
+
+### Faster performance than using using database/sql directly
+Every time you call database/sql's db.Query("SELECT ...") method, under the hood, the mysql driver will create a prepared statement, execute it, and then throw it away. This has a big performance cost.
+
+gocraft/dbr doesn't use prepared statements. We ported mysql's query escape functionality directly into our package, which means we interpolate all of those question marks with their arguments before they get to MySQL. The result of this is that it's way faster, and just as secure.
+
+Check out these [benchmarks](https://github.com/tyler-smith/golang-sql-benchmark).
+
+### JSON Friendly
+Every try to encode a sql.NullString? You get:
+```json
+{
+  str1: {
+    Valid: true,
+    String: "Hi!"
+  }
+  str2: {
+    Valid: false,
+    String: ""
+  }
+}
+```
+
+Not quite what you want. gocraft/dbr has dbr.NullString (and the rest of the Null* types) that encode correctly, giving you:
+
+```json
+{
+  str1: "Hi!",
+  str2: null
+}
+```
 
 ## Driver support
 Currently only MySQL has been tested because that is what we use. I would like to support others if there is time, but contributions are gladly accepted. Feel free to make an issue if you're interested in adding support and we can discuss what it would take.
@@ -116,7 +188,7 @@ titles, err = sess.Select("title").From("suggestions").ReturnStrings()
 type Suggestion struct {
 	Id        int64          `json:"id"`
 	Title     dbr.NullString `json:"title" db:"subject"` // subjects are called titles now
-    CreatedAt dbr.NullTime `json:"created_at"`
+	CreatedAt dbr.NullTime `json:"created_at"`
 }
 ```
 

@@ -54,8 +54,8 @@ Querying is the heart of gocraft/dbr. Automatically map results to structs:
 ```go
 var posts []*struct {
 	Id int64
-  Title string
-  Body dbr.NullString
+	Title string
+	Body dbr.NullString
 }
 err := sess.Select("id, title, body").From("posts").Where("id = ?", id).LoadStruct(&post)
 ```
@@ -121,13 +121,13 @@ Check out these [benchmarks](https://github.com/tyler-smith/golang-sql-benchmark
 Every try to encode a sql.NullString? You get:
 ```json
 {
-  str1: {
-    Valid: true,
-    String: "Hi!"
-  }
-  str2: {
-    Valid: false,
-    String: ""
+	"str1": {
+		"Valid": true,
+		"String": "Hi!"
+	}
+	"str2": {
+		"Valid": false,
+		"String": ""
   }
 }
 ```
@@ -136,8 +136,8 @@ Not quite what you want. gocraft/dbr has dbr.NullString (and the rest of the Nul
 
 ```json
 {
-  str1: "Hi!",
-  str2: null
+	"str1": "Hi!",
+	"str2": null
 }
 ```
 

@@ -16,9 +16,9 @@ import (
 
 // Simple data model
 type Suggestion struct {
-	Id     int64 `json:"id"`
-	Title  string `json:"title"`
-	CreatedAt dbr.NullTime `json:"created_at"`
+	Id        int64
+	Title     string
+	CreatedAt dbr.NullTime
 }
 
 // Hold a single global connection (pooling provided by sql driver)

@@ -121,13 +121,13 @@ gocraft/dbr doesn't use prepared statements. We ported mysql's query escape func
 Check out these [benchmarks](https://github.com/tyler-smith/golang-sql-benchmark).
 
 ### JSON Friendly
-Every try to encode a sql.NullString? You get:
+Every try to JSON-encode a sql.NullString? You get:
 ```json
 {
 	"str1": {
 		"Valid": true,
 		"String": "Hi!"
-	}
+	},
 	"str2": {
 		"Valid": false,
 		"String": ""

@@ -99,9 +99,11 @@ Traditionally database/sql uses prepared statements, which means each argument i
 ids := []int64{1,2,3,4,5}
 questionMarks := []string
 for _, _ := range ids {
-  questionMarks = append(questionMarks, "?")
+	questionMarks = append(questionMarks, "?")
 }
-n, err := db.Query(fmt.Sprintf("SELECT * FROM posts WHERE id IN (%s)", strings.Join(questionMarks, ","), ids) // lolwut
+query := fmt.Sprintf("SELECT * FROM posts WHERE id IN (%s)",
+	strings.Join(questionMarks, ",") // lolwut
+n, err := db.Query(query, ids) 
 
 // gocraft/dbr way:
 ids := []int64{1,2,3,4,5}

@@ -92,7 +92,7 @@ n, err := sess.SelectBySql(`SELECT title, body FROM posts WHERE created_at > ?
 ```
 
 ### IN queries that aren't horrible
-Traditionally database/sql uses prepared statements, which means each argument in an IN clause needs its own question mark. gocraft/dbr, on the other hand, handles interpolation itself so that you can easily use a single question mark paired with a dynamically sized slice.
+Traditionally, database/sql uses prepared statements, which means each argument in an IN clause needs its own question mark. gocraft/dbr, on the other hand, handles interpolation itself so that you can easily use a single question mark paired with a dynamically sized slice.
 
 ```go
 // Traditional database/sql way:
@@ -103,7 +103,7 @@ for _, _ := range ids {
 }
 query := fmt.Sprintf("SELECT * FROM posts WHERE id IN (%s)",
 	strings.Join(questionMarks, ",") // lolwut
-n, err := db.Query(query, ids) 
+rows, err := db.Query(query, ids) 
 
 // gocraft/dbr way:
 ids := []int64{1,2,3,4,5}
@@ -111,9 +111,7 @@ n, err := sess.SelectBySql("SELECT * FROM posts WHERE id IN ?", ids) // yay
 ```
 
 ### Amazing instrumentation
-Writing instrumented code is a first-class concern for gocraft/dbr. We instrument each query to emit to a gocraft/health-compatible EventReceiver interface. NOTE: we have not released gocraft/health yet.
-
-This allows you to hook up query times to 
+Writing instrumented code is a first-class concern for gocraft/dbr. We instrument each query to emit to a gocraft/health-compatible EventReceiver interface. NOTE: we have not released gocraft/health yet. This allows you to instrument your app to easily connect gocraft/dbr to your metrics systems, such statsd.
 
 ### Faster performance than using using database/sql directly
 Every time you call database/sql's db.Query("SELECT ...") method, under the hood, the mysql driver will create a prepared statement, execute it, and then throw it away. This has a big performance cost.

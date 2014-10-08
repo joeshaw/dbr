@@ -63,7 +63,7 @@ err := sess.Select("id, title, body").From("posts").Where("id = ?", id).LoadStru
 
 Additionally, easily query a single value or a slice of values:
 ```go
-id, err := sess.SelectBySql("SELECT id FROM posts WHERE title = ? ORDER BY ID DESC LIMIT 1", title).ReturnInt64()
+id, err := sess.SelectBySql("SELECT id FROM posts WHERE title = ?", title).ReturnInt64()
 ids, err := sess.SelectBySql("SELECT id FROM posts WHERE title = ?", title).ReturnInt64s()
 ```
 
@@ -86,7 +86,8 @@ n, err := builder.LoadStructs(&posts)
 
 Plain SQL:
 ```go
-n, err := sess.SelectBySql("SELECT title, body FROM posts WHERE created_at > ? ORDER BY id ASC LIMIT 10", someTime).LoadStructs(&post)
+n, err := sess.SelectBySql(`SELECT title, body FROM posts WHERE created_at > ?
+                              ORDER BY id ASC LIMIT 10`, someTime).LoadStructs(&post)
 ```
 
 ### IN queries that aren't horrible

@@ -58,7 +58,8 @@ var posts []*struct {
 	Title string
 	Body dbr.NullString
 }
-err := sess.Select("id, title, body").From("posts").Where("id = ?", id).LoadStruct(&post)
+err := sess.Select("id, title, body").
+	From("posts").Where("id = ?", id).LoadStruct(&post)
 ```
 
 Additionally, easily query a single value or a slice of values:

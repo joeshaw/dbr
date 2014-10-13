@@ -299,9 +299,6 @@ func main() {
 }
 ```
 
-## Performance
-Performance is a primary goal of dbr. I have a [collection of dbr related benchmarks](https://github.com/tyler-smith/golang-sql-benchmark) that should probably be checked when making performance-impacting changes.
-
 ## Contributing
 We gladly accept contributions. We want to keep dbr pretty light but I certainly don't mind discussing any changes or additions. Feel free to open an issue if you'd like to discus a potential change.
 

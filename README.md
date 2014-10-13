@@ -245,7 +245,8 @@ if err != nil {
 // Update any rubyists to gophers
 response, err := sess.Update("developers").
 	Set("name", "Gopher").
-	Set("language", "Go").Where("language = ?", "Ruby").Exec()
+	Set("language", "Go").
+	Where("language = ?", "Ruby").Exec()
 
 
 // Alternatively use a map of attributes to update

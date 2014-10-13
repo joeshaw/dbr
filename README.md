@@ -243,12 +243,15 @@ if err != nil {
 ### Updating Records
 ```go
 // Update any rubyists to gophers
-response, err := sess.Update("developers").Set("name", "Gopher").Set("language", "Go").Where("language = ?", "Ruby").Exec()
+response, err := sess.Update("developers").
+	Set("name", "Gopher").
+	Set("language", "Go").Where("language = ?", "Ruby").Exec()
 
 
 // Alternatively use a map of attributes to update
 attrsMap := map[string]interface{}{"name": "Gopher", "language": "Go"}
-response, err := sess.Update("developers").SetMap(attrsMap).Where("language = ?", "Ruby").Exec()
+response, err := sess.Update("developers").
+	SetMap(attrsMap).Where("language = ?", "Ruby").Exec()
 ```
 
 ### Transactions

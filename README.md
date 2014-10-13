@@ -219,7 +219,7 @@ err := dbrSess.Select("id, title, user_id").From("suggestions").
 // dbr.Null* types serialize to JSON like you want
 suggestion := &Suggestion{Id: 1, Title: "Test Title"}
 jsonBytes, err := json.Marshal(&suggestion)
-println(string(jsonBytes)) // {"id":1,"title":"Test Title","created_at":null}
+fmt.Println(string(jsonBytes)) // {"id":1,"title":"Test Title","created_at":null}
 ```
 
 ### Inserting Multiple Records

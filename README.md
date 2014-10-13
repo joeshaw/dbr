@@ -225,11 +225,12 @@ fmt.Println(string(jsonBytes)) // {"id":1,"title":"Test Title","created_at":null
 ### Inserting Multiple Records
 ```go
 // Start bulding an INSERT statement
-createDevsBuilder := sess.InsertInto("developers").Columns("name", "language", "employee_number")
+createDevsBuilder := sess.InsertInto("developers").
+	Columns("name", "language", "employee_number")
 
 // Add some new developers
 for i := 0; i < 3; i++ {
-	createDevsBuilder.Record(&Developer{Name: "Gopher", Language: "Go", EmployeeNumber: i})
+	createDevsBuilder.Record(&Dev{Name: "Gopher", Language: "Go", EmployeeNumber: i})
 }
 
 // Execute statment

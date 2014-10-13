@@ -260,7 +260,7 @@ response, err := sess.Update("developers").
 // Start txn
 tx, err := c.Dbr.Begin()
 if err != nil {
-  return err
+	return err
 }
 
 // Rollback unless we're successful. You can also manually call tx.Rollback() if you'd like.
@@ -269,12 +269,12 @@ defer tx.RollbackUnlessCommitted()
 // Issue statements that might cause errors
 res, err := tx.Update("suggestions").Set("state", "deleted").Where("deleted_at IS NOT NULL").Exec()
 if err != nil {
-  return err
+	return err
 }
 
 // Commit the transaction
 if err := tx.Commit(); err != nil {
-  return err
+	return err
 }
 ```
 
@@ -287,6 +287,12 @@ builder := dbrSess.Select("*").From("suggestions").Where("subdomain_id = ?", 1)
 sql, args := builder.ToSql()
 fmt.Println(sql) // SELECT * FROM suggestions WHERE (subdomain_id = ?)
 fmt.Println(args) // [1]
+
+// Use raw database/sql for actual query
+rows, err := db.Query(sql, args...)
+if err != nil {
+    log.Fatalln(err)
+}
 ```
 
 ## Contributing

@@ -155,17 +155,21 @@ Currently only MySQL has been tested because that is what we use. Feel free to m
 suggestion := &Suggestion{Title: "My Cool Suggestion", State: "open"}
 
 // Insert; inserting a record automatically sets an int64 Id field if present
-response, err := dbrSess.InsertInto("suggestions").Columns("title", "state").Record(suggestion).Exec()
+response, err := dbrSess.InsertInto("suggestions").
+	Columns("title", "state").Record(suggestion).Exec()
 
 // Update
-response, err = dbrSess.Update("suggestions").Set("title", "My New Title").Where("id = ?", suggestion.Id).Exec()
+response, err = dbrSess.Update("suggestions").
+	Set("title", "My New Title").Where("id = ?", suggestion.Id).Exec()
 
 // Select
 var otherSuggestion Suggestion
-err = dbrSess.Select("id, title").From("suggestions").Where("id = ?", suggestion.Id).LoadStruct(&otherSuggestion)
+err = dbrSess.Select("id, title").From("suggestions").
+	Where("id = ?", suggestion.Id).LoadStruct(&otherSuggestion)
 
 // Delete
-response, err = dbrSess.DeleteFrom("suggestions").Where("id = ?", otherSuggestion.Id).Limit(1).Exec()
+response, err = dbrSess.DeleteFrom("suggestions").
+	Where("id = ?", otherSuggestion.Id).Limit(1).Exec()
 ```
 
 ### Primitive Values

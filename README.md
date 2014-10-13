@@ -202,10 +202,10 @@ type Suggestion struct {
 ```go
 // Columns are mapped to fields breadth-first
 type Suggestion struct {
-    Id        int64        `json:"id"`
-    Title     string       `json:"title"`
+    Id        int64
+    Title     string
     User      *struct {
-        Id int64 `json:"user_id" db:"user_id"`
+        Id int64 `db:"user_id"`
     }
 }
 

@@ -257,24 +257,28 @@ response, err := sess.Update("developers").
 
 ### Transactions
 ```go
-// Basic transaction usage
-
-// Start transaction
-tx, err := dbrSess.Begin()
+// Start txn
+tx, err := c.Dbr.Begin()
 if err != nil {
-    log.Fatalln(err.Error())
+  return err
 }
 
-// Issue some statements
-tx.Update("suggestions").Set("state", "deleted").Where("deleted_at IS NOT NULL").Exec()
-tx.Update("comments").Set("state", "deleted").Where("deleted_at IS NOT NULL").Exec()
+// Rollback unless we're successful. You can also manually call tx.Rollback() if you'd like.
+defer tx.RollbackUnlessCommitted()
+
+// Issue statements that might cause errors
+res, err := tx.Update("suggestions").Set("state", "deleted").Where("deleted_at IS NOT NULL").Exec()
+if err != nil {
+  return err
+}
 
 // Commit the transaction
-err = tx.Commit()
+if err := tx.Commit(); err != nil {
+  return err
+}
 ```
 
 ### Generate SQL without executing
-If you're only interested in building queries or want the built SQL for logging, you can generate it without executing
 ```go
 // Create builder
 builder := dbrSess.Select("*").From("suggestions").Where("subdomain_id = ?", 1)
@@ -283,30 +287,6 @@ builder := dbrSess.Select("*").From("suggestions").Where("subdomain_id = ?", 1)
 sql, args := builder.ToSql()
 fmt.Println(sql) // SELECT * FROM suggestions WHERE (subdomain_id = ?)
 fmt.Println(args) // [1]
-```
-
-If you're only interested interested in dbr's query building and logging you could do something like this
-```go
-func main() {
-	// Create the connection during application initialization
-	db, _ := sql.Open("mysql", "root@unix(/tmp/mysqld.sock)/your_database")
-	connection := dbr.NewConnection(db, nil)
-
-	// Create a session for each business unit of execution (e.g. a web request or goworkers job)
-	dbrSess := connection.NewSession(nil)
-
-	// Create builder
-	builder := dbrSess.Select("*").From("suggestions").Where("subdomain_id = ?", 1)
-
-	// Get builder's SQL and arguments
-	sql, args := builder.ToSql()
-
-    // Use raw database/sql for actual query
-	rows, err := db.Query(sql, args...)
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
 ```
 
 ## Contributing

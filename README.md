@@ -210,7 +210,8 @@ type Suggestion struct {
 }
 
 var suggestion Suggestion
-err := dbrSess.Select("id, title, user_id").From("suggestions").Limit(1).LoadStruct(&suggestion)
+err := dbrSess.Select("id, title, user_id").From("suggestions").
+	Limit(1).LoadStruct(&suggestion)
 ```
 
 ### JSON encoding of Null* types

@@ -192,9 +192,9 @@ titles, err = sess.Select("title").From("suggestions").ReturnStrings()
 // You can override this with struct tags, just like with JSON tags
 // This is especially helpful while migrating from legacy systems
 type Suggestion struct {
-	Id        int64          `json:"id"`
-	Title     dbr.NullString `json:"title" db:"subject"` // subjects are called titles now
-	CreatedAt dbr.NullTime `json:"created_at"`
+	Id        int64
+	Title     dbr.NullString `db:"subject"` // subjects are called titles now
+	CreatedAt dbr.NullTime
 }
 ```
 

@@ -145,7 +145,7 @@ Not quite what you want. gocraft/dbr has dbr.NullString (and the rest of the Nul
 ```
 
 ## Driver support
-Currently only MySQL has been tested because that is what we use. I would like to support others if there is time, but contributions are gladly accepted. Feel free to make an issue if you're interested in adding support and we can discuss what it would take.
+Currently only MySQL has been tested because that is what we use. Feel free to make an issue for Postgres if you're interested in adding support and we can discuss what it would take.
 
 ## Usage Examples
 

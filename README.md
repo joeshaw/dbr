@@ -148,7 +148,6 @@ Not quite what you want. gocraft/dbr has dbr.NullString (and the rest of the Nul
 Currently only MySQL has been tested because that is what we use. I would like to support others if there is time, but contributions are gladly accepted. Feel free to make an issue if you're interested in adding support and we can discuss what it would take.
 
 ## Usage Examples
-The tests are a great place to see how to perform various queries, but here are a few highlights.
 
 ### Simple Record CRUD
 ```go

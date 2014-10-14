@@ -153,7 +153,7 @@ Currently only MySQL has been tested because that is what we use. Feel free to m
 All queries in gocraft/dbr are made in the context of a session. This is because when instrumenting your app, it's important to understand which business action the query took place in. See gocraft/health for more detail.
 
 Here's an example web endpoint that makes a session:
-```
+```go
 // At app startup:
 dbrCxn = dbr.NewConnection(db, nil)
 
@@ -166,6 +166,7 @@ func SuggestionsIndex(rw http.ResponseWriter, r *http.Request) {
 	err = dbrSess.Select("id, title").From("suggestions").
 		Where("id = ?", suggestion.Id).LoadStruct(&otherSuggestion)
 }
+```
 
 ### Simple Record CRUD
 ```go

@@ -149,6 +149,24 @@ Currently only MySQL has been tested because that is what we use. Feel free to m
 
 ## Usage Examples
 
+### Making a session
+All queries in gocraft/dbr are made in the context of a session. This is because when instrumenting your app, it's important to understand which business action the query took place in. See gocraft/health for more detail.
+
+Here's an example web endpoint that makes a session:
+```
+// At app startup:
+dbrCxn = dbr.NewConnection(db, nil)
+
+func SuggestionsIndex(rw http.ResponseWriter, r *http.Request) {
+	// Make a session:
+	dbrSess := connection.NewSession(nil)
+
+	// Do queries with the session:
+	var otherSuggestion Suggestion
+	err = dbrSess.Select("id, title").From("suggestions").
+		Where("id = ?", suggestion.Id).LoadStruct(&otherSuggestion)
+}
+
 ### Simple Record CRUD
 ```go
 // Create a new suggestion record

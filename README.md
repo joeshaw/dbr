@@ -166,7 +166,7 @@ func SuggestionsIndex(rw http.ResponseWriter, r *http.Request) {
 	err := dbrSess.Select("id, title").From("suggestions").
 		Where("id = ?", suggestion.Id).LoadStruct(&sugg)
 
-	// Render stufff, etc. Nothing else needs to be done with dbr.
+	// Render stuff, etc. Nothing else needs to be done with dbr.
 }
 ```
 

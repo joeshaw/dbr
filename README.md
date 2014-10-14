@@ -155,16 +155,18 @@ All queries in gocraft/dbr are made in the context of a session. This is because
 Here's an example web endpoint that makes a session:
 ```go
 // At app startup:
-dbrCxn = dbr.NewConnection(db, nil)
+dbrCxn = dbr.NewConnection(db, nil) // if you have a gocraft/health stream, pass it in here
 
 func SuggestionsIndex(rw http.ResponseWriter, r *http.Request) {
 	// Make a session:
-	dbrSess := connection.NewSession(nil)
+	dbrSess := connection.NewSession(nil) // if you have a gocraft/health job, pass it in here
 
 	// Do queries with the session:
-	var otherSuggestion Suggestion
-	err = dbrSess.Select("id, title").From("suggestions").
-		Where("id = ?", suggestion.Id).LoadStruct(&otherSuggestion)
+	var sugg Suggestion
+	err := dbrSess.Select("id, title").From("suggestions").
+		Where("id = ?", suggestion.Id).LoadStruct(&sugg)
+
+	// Render stufff, etc. Nothing else needs to be done with dbr.
 }
 ```
 

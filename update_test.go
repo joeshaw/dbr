@@ -31,7 +31,7 @@ func TestUpdateAllToSql(t *testing.T) {
 
 	sql, args := s.Update("a").Set("b", 1).Set("c", 2).ToSql()
 
-	assert.Equal(t, sql, "UPDATE a SET `b` = ?, `c` = ?")
+	assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ?, %s = ?", "b", "c"))
 	assert.Equal(t, args, []interface{}{1, 2})
 }
 
@@ -40,7 +40,7 @@ func TestUpdateSingleToSql(t *testing.T) {
 
 	sql, args := s.Update("a").Set("b", 1).Set("c", 2).Where("id = ?", 1).ToSql()
 
-	assert.Equal(t, sql, "UPDATE a SET `b` = ?, `c` = ? WHERE (id = ?)")
+	assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ?, %s = ? WHERE (id = ?)", "b", "c"))
 	assert.Equal(t, args, []interface{}{1, 2, 1})
 }
 
@@ -49,10 +49,10 @@ func TestUpdateSetMapToSql(t *testing.T) {
 
 	sql, args := s.Update("a").SetMap(map[string]interface{}{"b": 1, "c": 2}).Where("id = ?", 1).ToSql()
 
-	if sql == "UPDATE a SET `b` = ?, `c` = ? WHERE (id = ?)" {
+	if sql == quoteSQL("UPDATE a SET %s = ?, %s = ? WHERE (id = ?)", "b", "c") {
 		assert.Equal(t, args, []interface{}{1, 2, 1})
 	} else {
-		assert.Equal(t, sql, "UPDATE a SET `c` = ?, `b` = ? WHERE (id = ?)")
+		assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ?, %s = ? WHERE (id = ?)", "c", "b"))
 		assert.Equal(t, args, []interface{}{2, 1, 1})
 	}
 }
@@ -62,12 +62,12 @@ func TestUpdateSetExprToSql(t *testing.T) {
 
 	sql, args := s.Update("a").Set("foo", 1).Set("bar", Expr("COALESCE(bar, 0) + 1")).Where("id = ?", 9).ToSql()
 
-	assert.Equal(t, sql, "UPDATE a SET `foo` = ?, `bar` = COALESCE(bar, 0) + 1 WHERE (id = ?)")
+	assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ?, %s = COALESCE(bar, 0) + 1 WHERE (id = ?)", "foo", "bar"))
 	assert.Equal(t, args, []interface{}{1, 9})
 
 	sql, args = s.Update("a").Set("foo", 1).Set("bar", Expr("COALESCE(bar, 0) + ?", 2)).Where("id = ?", 9).ToSql()
 
-	assert.Equal(t, sql, "UPDATE a SET `foo` = ?, `bar` = COALESCE(bar, 0) + ? WHERE (id = ?)")
+	assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ?, %s = COALESCE(bar, 0) + ? WHERE (id = ?)", "foo", "bar"))
 	assert.Equal(t, args, []interface{}{1, 2, 9})
 }
 
@@ -76,7 +76,7 @@ func TestUpdateTenStaringFromTwentyToSql(t *testing.T) {
 
 	sql, args := s.Update("a").Set("b", 1).Limit(10).Offset(20).ToSql()
 
-	assert.Equal(t, sql, "UPDATE a SET `b` = ? LIMIT 10 OFFSET 20")
+	assert.Equal(t, sql, quoteSQL("UPDATE a SET %s = ? LIMIT 10 OFFSET 20", "b"))
 	assert.Equal(t, args, []interface{}{1})
 }
 

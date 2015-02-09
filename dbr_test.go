@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 //
@@ -26,6 +28,16 @@ func createRealSessionWithFixtures() *Session {
 	sess := createRealSession()
 	installFixtures(sess.cxn.Db)
 	return sess
+}
+
+func quoteSQL(sqlFmt string, cols ...string) string {
+	args := make([]interface{}, len(cols))
+
+	for i := range cols {
+		args[i] = quoteColumn(cols[i])
+	}
+
+	return fmt.Sprintf(sqlFmt, args...)
 }
 
 func realDb() *sql.DB {
@@ -55,14 +67,14 @@ type dbrPerson struct {
 }
 
 func installFixtures(db *sql.DB) {
-	createTablePeople := fmt.Sprintf(`
+	createTablePeople := `
 		CREATE TABLE dbr_people (
-			id int(11) DEFAULT NULL auto_increment PRIMARY KEY,
+			id SERIAL PRIMARY KEY,
 			name varchar(255) NOT NULL,
 			email varchar(255),
-			%s varchar(255)
+			key varchar(255)
 		)
-	`, "`key`")
+	`
 
 	sqlToRun := []string{
 		"DROP TABLE IF EXISTS dbr_people",

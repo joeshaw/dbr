@@ -40,6 +40,51 @@ func quoteSQL(sqlFmt string, cols ...string) string {
 	return fmt.Sprintf(sqlFmt, args...)
 }
 
+func execAndGetID(b *InsertBuilder) (int64, error) {
+	// TODO
+	// if mysql {
+	// 	res, err := b.Exec()
+	// 	if err != nil {
+	// 		return 0, err
+	// 	}
+	//
+	// 	id, err := res.LastInsertId()
+	// 	if err != nil {
+	// 		return 0, err
+	// 	}
+	//
+	// 	return id, nil
+	// }
+
+	b = b.Returning("id")
+
+	// TODO: Need a better way to extract RETURNING values
+	sql, err := Interpolate(b.ToSql())
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := b.runner.Query(sql)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var id int64
+	if rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
 func realDb() *sql.DB {
 	driver := os.Getenv("DBR_TEST_DRIVER")
 	if driver == "" {

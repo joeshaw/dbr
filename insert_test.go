@@ -1,7 +1,6 @@
 package dbr
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -76,35 +75,36 @@ func TestInsertKeywordColumnName(t *testing.T) {
 func TestInsertReal(t *testing.T) {
 	// Insert by specifying values
 	s := createRealSessionWithFixtures()
-	res, err := s.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "obama@whitehouse.gov").Exec()
-	validateInsertingBarack(t, s, res, err)
+	b := s.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "obama@whitehouse.gov")
+	validateInsertingBarack(t, b)
 
 	// Insert by specifying a record (ptr to struct)
 	s = createRealSessionWithFixtures()
 	person := dbrPerson{Name: "Barack"}
 	person.Email.Valid = true
 	person.Email.String = "obama@whitehouse.gov"
-	res, err = s.InsertInto("dbr_people").Columns("name", "email").Record(&person).Exec()
-	validateInsertingBarack(t, s, res, err)
+	b = s.InsertInto("dbr_people").Columns("name", "email").Record(&person)
+	validateInsertingBarack(t, b)
 
 	// Insert by specifying a record (struct)
 	s = createRealSessionWithFixtures()
-	res, err = s.InsertInto("dbr_people").Columns("name", "email").Record(person).Exec()
-	validateInsertingBarack(t, s, res, err)
+	b = s.InsertInto("dbr_people").Columns("name", "email").Record(person)
+	validateInsertingBarack(t, b)
 }
 
-func validateInsertingBarack(t *testing.T, s *Session, res sql.Result, err error) {
+func validateInsertingBarack(t *testing.T, b *InsertBuilder) {
+	id, err := execAndGetID(b)
 	assert.NoError(t, err)
-	id, err := res.LastInsertId()
-	assert.NoError(t, err)
-	rowsAff, err := res.RowsAffected()
-	assert.NoError(t, err)
+
+	// TODO: RowsAffected isn't available for Postgres, because we Query rather than Exec
+	// rowsAff, err := res.RowsAffected()
+	// assert.NoError(t, err)
 
 	assert.True(t, id > 0)
-	assert.Equal(t, rowsAff, 1)
+	// assert.Equal(t, rowsAff, 1)
 
 	var person dbrPerson
-	err = s.Select("*").From("dbr_people").Where("id = ?", id).LoadStruct(&person)
+	err = b.Session.Select("*").From("dbr_people").Where("id = ?", id).LoadStruct(&person)
 	assert.NoError(t, err)
 
 	assert.Equal(t, person.Id, id)

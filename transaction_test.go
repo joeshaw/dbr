@@ -13,16 +13,17 @@ func TestTransactionReal(t *testing.T) {
 	tx, err := s.Begin()
 	assert.NoError(t, err)
 
-	res, err := tx.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "obama@whitehouse.gov").Exec()
+	b := tx.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "obama@whitehouse.gov")
+	id, err := execAndGetID(b)
 
 	assert.NoError(t, err)
-	id, err := res.LastInsertId()
-	assert.NoError(t, err)
-	rowsAff, err := res.RowsAffected()
-	assert.NoError(t, err)
+
+	// TODO: RowsAffected isn't available for Postgres, because we Query rather than Exec
+	// rowsAff, err := res.RowsAffected()
+	// assert.NoError(t, err)
 
 	assert.True(t, id > 0)
-	assert.Equal(t, rowsAff, 1)
+	// assert.Equal(t, rowsAff, 1)
 
 	var person dbrPerson
 	err = tx.Select("*").From("dbr_people").Where("id = ?", id).LoadStruct(&person)

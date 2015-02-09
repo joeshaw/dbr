@@ -108,15 +108,14 @@ func TestUpdateReal(t *testing.T) {
 	s := createRealSessionWithFixtures()
 
 	// Insert a George
-	res, err := s.InsertInto("dbr_people").Columns("name", "email").Values("George", "george@whitehouse.gov").Exec()
-	assert.NoError(t, err)
+	b := s.InsertInto("dbr_people").Columns("name", "email").Values("George", "george@whitehouse.gov")
 
 	// Get George's ID
-	id, err := res.LastInsertId()
+	id, err := execAndGetID(b)
 	assert.NoError(t, err)
 
 	// Rename our George to Barack
-	res, err = s.Update("dbr_people").SetMap(map[string]interface{}{"name": "Barack", "email": "barack@whitehouse.gov"}).Where("id = ?", id).Exec()
+	_, err = s.Update("dbr_people").SetMap(map[string]interface{}{"name": "Barack", "email": "barack@whitehouse.gov"}).Where("id = ?", id).Exec()
 
 	assert.NoError(t, err)
 

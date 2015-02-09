@@ -1,8 +1,9 @@
 package dbr
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func BenchmarkDeleteSql(b *testing.B) {
@@ -44,15 +45,12 @@ func TestDeleteReal(t *testing.T) {
 	s := createRealSessionWithFixtures()
 
 	// Insert a Barack
-	res, err := s.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "barack@whitehouse.gov").Exec()
-	assert.NoError(t, err)
-
-	// Get Barack's ID
-	id, err := res.LastInsertId()
+	b := s.InsertInto("dbr_people").Columns("name", "email").Values("Barack", "barack@whitehouse.gov")
+	id, err := execAndGetID(b)
 	assert.NoError(t, err)
 
 	// Delete Barack
-	res, err = s.DeleteFrom("dbr_people").Where("id = ?", id).Exec()
+	res, err := s.DeleteFrom("dbr_people").Where("id = ?", id).Exec()
 	assert.NoError(t, err)
 
 	// Ensure we only reflected one row and that the id no longer exists

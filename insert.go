@@ -17,6 +17,7 @@ type InsertBuilder struct {
 	Cols []string
 	Vals [][]interface{}
 	Recs []interface{}
+	Rets []string
 }
 
 // InsertInto instantiates a InsertBuilder for the given table
@@ -52,6 +53,12 @@ func (b *InsertBuilder) Values(vals ...interface{}) *InsertBuilder {
 // Record pulls in values to match Columns from the record
 func (b *InsertBuilder) Record(record interface{}) *InsertBuilder {
 	b.Recs = append(b.Recs, record)
+	return b
+}
+
+// Lists the columns to return from an insert
+func (b *InsertBuilder) Returning(columns ...string) *InsertBuilder {
+	b.Rets = columns
 	return b
 }
 
@@ -133,6 +140,17 @@ func (b *InsertBuilder) ToSql() (string, []interface{}) {
 		for _, v := range vals {
 			args = append(args, v)
 		}
+	}
+
+	// Go thru the returning clauses
+	for i, c := range b.Rets {
+		if i == 0 {
+			sql.WriteString(" RETURNING ")
+		} else {
+			sql.WriteRune(',')
+		}
+
+		Quoter.writeQuotedColumn(c, &sql)
 	}
 
 	return sql.String(), args
